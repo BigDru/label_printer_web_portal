@@ -5,9 +5,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const imageInput = document.getElementById('image-input');
     const textBox = document.getElementById('text-box');
     const printButton = document.getElementById('print-button');
+    const resetButton = document.getElementById('reset-button');
     const fitButton = document.getElementById('fit-button');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+
+    const offset_x_p = document.getElementById('offset-x');
+    const offset_y_p = document.getElementById('offset-y');
+    const offset_w_p = document.getElementById('offset-w');
+    const offset_h_p = document.getElementById('offset-h');
 
     function get_dpi() {
         // Create an element with 1 inch width
@@ -211,6 +217,11 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.fillRect(x, (canvas.height + label_h) / 2, label_w, (canvas.height - label_h) / 2);
 
         ctx.fillRect(x + label_w, 0, (canvas.width - label_w) / 2, canvas.height);
+
+        offset_x_p.textContent = `X offset: ${img_offsets.x}`;
+        offset_y_p.textContent = `Y offset: ${img_offsets.y}`;
+        offset_w_p.textContent = `Width offset: ${img_offsets.w}`;
+        offset_h_p.textContent = `Height offset: ${img_offsets.h}`;
     }
 
     labelSize.addEventListener('change', update_canvas);
@@ -341,15 +352,25 @@ document.addEventListener('DOMContentLoaded', function () {
         reader.onload = function(event) {
             img = new Image();
             img.onload = function() {
-                img_offsets.x = 0;
-                img_offsets.y = 0;
-                img_offsets.w = 0;
-                img_offsets.h = 0;
+                reset_image();
                 fit_to_label();
             };
             img.src = event.target.result;
         };
         reader.readAsDataURL(file);
+    });
+
+    function reset_image()
+    {
+        img_offsets.x = 0;
+        img_offsets.y = 0;
+        img_offsets.w = 0;
+        img_offsets.h = 0;
+    }
+
+    resetButton.addEventListener('click', function(){
+        reset_image();
+        update_canvas();
     });
 
     function fit_to_label()
