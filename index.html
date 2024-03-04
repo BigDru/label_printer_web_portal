@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Label Printer Web Interface</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <header>
+        <div>
+            <h1>Label Printer</h1>
+            <select id="label-size">
+                <option value="SmallLabelPrinter">Small Address Label</option>
+                <option value="LargeLabelPrinter">Large Address Label</option>
+            </select>
+        </div>
+
+        <button id="print-button">Print Label</button>
+
+        </header>
+
+        <main>
+            <div id="controls">
+                <div id="text-box-container">
+                    <h2>Enter text for label:</h2>
+                    <textarea id="text-box"></textarea>
+                    <h2>Load image for label:</h2>
+                    <button onclick="document.getElementById('image-input').click()">Browse...</button>
+                    <input id="image-input" style="display: none" type="file">
+                </div>
+            </div>
+
+            <div id="canvas-container">
+                <canvas id="canvas" />
+            </div>
+        </main>
+
+        <script src="script.js"></script>
+    </body>
+</html>
+

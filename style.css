@@ -1,0 +1,71 @@
+body {
+    font-family: sans-serif; /* Choose a preferred font */
+    margin: 20px;
+    background: #181a1b;
+    color: #e8e6e3;
+}
+
+header {
+    display: flex;
+    flex-direction: row;
+    align-items: center; /* Vertically align elements */
+    justify-content: space-between;
+}
+
+#label-size {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    padding: 5px;
+    margin-left:30px;
+    font-size: 16px;
+}
+
+#print-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: 40px;
+}
+
+#print-button:hover {
+    background-color: #3e8e41;
+}
+
+main {
+    display: flex;
+    flex-wrap: nowrap;
+    min-height: 720px;
+}
+
+main > div {
+    flex: 50%;
+    margin: 20px;
+    padding: 10px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    border: none; /* Remove border within the container */
+    font-size: 16px;
+}
+
+#canvas-container {
+    min-height: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+#canvas {
+    background-color: white;
+}
