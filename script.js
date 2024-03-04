@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const dpmm = dpi / mm_per_inch;
 
     var img = null;
-    var img_offsets = { x: 0, y: 0 };
+    var img_offsets = { x: 0, y: 0, w: 0, h: 0};
     const img_resize_controls_radius = 10;
     var label_w = 0;
     var label_h = 0;
@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', function () {
     {
         var img_x = calc_img_x();
         var img_y = calc_img_y();
+        var img_w = calc_img_w();
+        var img_h = calc_img_h();
 
         ctx.lineWidth = 1;
 
@@ -59,12 +61,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         ctx.beginPath();
         ctx.moveTo(img_x + img_resize_controls_radius, img_y);
-        ctx.lineTo(img_x + img.width - img_resize_controls_radius, img_y);
+        ctx.lineTo(img_x + img_w - img_resize_controls_radius, img_y);
         ctx.stroke();
 
         ctx.beginPath();
         ctx.arc(
-            img_x + img.width,
+            img_x + img_w,
             img_y,
             img_resize_controls_radius,
             0,
@@ -73,14 +75,14 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.moveTo(img_x + img.width, img_y + radius);
-        ctx.lineTo(img_x + img.width, img_y + img.height - radius);
+        ctx.moveTo(img_x + img_w, img_y + radius);
+        ctx.lineTo(img_x + img_w, img_y + img_h - radius);
         ctx.stroke();
 
         ctx.beginPath();
         ctx.arc(
-            img_x + img.width,
-            img_y + img.height,
+            img_x + img_w,
+            img_y + img_h,
             img_resize_controls_radius,
             0,
             Math.PI * 2
@@ -88,14 +90,14 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.moveTo(img_x + img.width - img_resize_controls_radius, img_y + img.height);
-        ctx.lineTo(img_x + img_resize_controls_radius, img_y + img.height);
+        ctx.moveTo(img_x + img_w - img_resize_controls_radius, img_y + img_h);
+        ctx.lineTo(img_x + img_resize_controls_radius, img_y + img_h);
         ctx.stroke();
 
         ctx.beginPath();
         ctx.arc(
             img_x,
-            img_y + img.height,
+            img_y + img_h,
             img_resize_controls_radius,
             0,
             Math.PI * 2
@@ -103,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.moveTo(img_x, img_y + img.height - radius);
+        ctx.moveTo(img_x, img_y + img_h - radius);
         ctx.lineTo(img_x, img_y + radius);
         ctx.stroke();
     }
@@ -122,14 +124,28 @@ document.addEventListener('DOMContentLoaded', function () {
         return (canvas.height - img.height) / 2 + img_offsets.y;
     }
 
+    function calc_img_w()
+    {
+        if (img == null) return 0;
+
+        return img.width + img_offsets.w;
+    }
+
+    function calc_img_h()
+    {
+        if (img == null) return 0;
+
+        return img.height + img_offsets.h;
+    }
+
     function update_img()
     {
         ctx.drawImage(
             img,
             calc_img_x(),
             calc_img_y(),
-            img.width,
-            img.height);
+            calc_img_w(),
+            calc_img_h());
 
         draw_img_lines();
     }
@@ -141,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.fillText(`Mouse: (${mouse_x}, ${mouse_y})`, 5, 25);
         if (img != null)
         {
-            ctx.fillText(`Img: (${calc_img_x()}, ${calc_img_y()}, ${img.width}, ${img.height})`, 5, 50);
+            ctx.fillText(`Img: (${calc_img_x()}, ${calc_img_y()}, ${calc_img_w()}, ${calc_img_h()})`, 5, 50);
         }
     }
 
@@ -204,9 +220,11 @@ document.addEventListener('DOMContentLoaded', function () {
         {
             var img_x = calc_img_x();
             var img_y = calc_img_y();
+            var img_w = calc_img_w();
+            var img_h = calc_img_h();
 
-            if (mouse_x > img_x && mouse_x < img_x + img.width &&
-                mouse_y > img_y && mouse_y < img_y + img.height)
+            if (mouse_x > img_x && mouse_x < img_x + img_w &&
+                mouse_y > img_y && mouse_y < img_y + img_h)
             {
                 canvas.style.cursor = "move";
             }
@@ -222,19 +240,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 canvas.style.cursor = "se-resize";
             }
 
-            const distance_from_top_right_control = Math.sqrt((mouse_x - (img_x + img.width)) ** 2 + (mouse_y - img_y) ** 2);
+            const distance_from_top_right_control = Math.sqrt((mouse_x - (img_x + img_w)) ** 2 + (mouse_y - img_y) ** 2);
             if (distance_from_top_right_control < img_resize_controls_radius)
             {
                 canvas.style.cursor = "sw-resize";
             }
 
-            const distance_from_bottom_left_control = Math.sqrt((mouse_x - img_x) ** 2 + (mouse_y - (img_y + img.height)) ** 2);
+            const distance_from_bottom_left_control = Math.sqrt((mouse_x - img_x) ** 2 + (mouse_y - (img_y + img_h)) ** 2);
             if (distance_from_bottom_left_control < img_resize_controls_radius)
             {
                 canvas.style.cursor = "ne-resize";
             }
 
-            const distance_from_bottom_right_control = Math.sqrt((mouse_x - (img_x + img.width)) ** 2 + (mouse_y - (img_y + img.height)) ** 2);
+            const distance_from_bottom_right_control = Math.sqrt((mouse_x - (img_x + img_w)) ** 2 + (mouse_y - (img_y + img_h)) ** 2);
             if (distance_from_bottom_right_control < img_resize_controls_radius)
             {
                 canvas.style.cursor = "nw-resize";
@@ -273,6 +291,33 @@ document.addEventListener('DOMContentLoaded', function () {
             {
                 img_offsets.x += delta_x;
                 img_offsets.y += delta_y;
+            }
+            else if (canvas.style.cursor == "se-resize") // top left
+            {
+                img_offsets.x += delta_x;
+                img_offsets.y += delta_y;
+
+                img_offsets.w -= delta_x;
+                img_offsets.h -= delta_y;
+            }
+            else if (canvas.style.cursor == "sw-resize") // top right
+            {
+                img_offsets.y += delta_y;
+
+                img_offsets.w += delta_x;
+                img_offsets.h -= delta_y;
+            }
+            else if (canvas.style.cursor == "ne-resize") // bottom left
+            {
+                img_offsets.x += delta_x;
+
+                img_offsets.w -= delta_x;
+                img_offsets.h += delta_y;
+            }
+            else if (canvas.style.cursor == "nw-resize") // bottom right
+            {
+                img_offsets.w += delta_x;
+                img_offsets.h += delta_y;
             }
 
             mouse_down_x = mouse_x;
