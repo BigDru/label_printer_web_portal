@@ -246,10 +246,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    canvas.addEventListener('mousedown', function(e) {
+        if (e.buttons == 1)
+        {
+            const canvas_rect = canvas.getBoundingClientRect();
+            mouse_x = e.clientX - canvas_rect.x;
+            mouse_y = e.clientY - canvas_rect.y;
+
+            mouse_down_x = mouse_x;
+            mouse_down_y = mouse_y;
+        }
+    });
+
     canvas.addEventListener('mousemove', function(e) {
         const canvas_rect = canvas.getBoundingClientRect();
         mouse_x = e.clientX - canvas_rect.x;
         mouse_y = e.clientY - canvas_rect.y;
+
+        if (canvas.style.cursor != "default" &&
+            e.buttons == 1)
+        {
+            var delta_x = mouse_x - mouse_down_x;
+            var delta_y = mouse_y - mouse_down_y;
+
+            if (canvas.style.cursor == "move")
+            {
+                img_offsets.x += delta_x;
+                img_offsets.y += delta_y;
+            }
+
+            mouse_down_x = mouse_x;
+            mouse_down_y = mouse_y;
+        }
 
         set_cursor(mouse_x, mouse_y);
         update_canvas();
