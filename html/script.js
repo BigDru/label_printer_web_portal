@@ -336,11 +336,9 @@ document.addEventListener('DOMContentLoaded', function () {
             img.onload = function() {
                 img_offsets.x = 0;
                 img_offsets.y = 0;
+                img_offsets.w = 0;
+                img_offsets.h = 0;
                 update_canvas();
-                // Clear canvas and draw image
-                //ctx.clearRect(0, 0, canvas.width, canvas.height);
-                //ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                //updateText(); // Draw text over the image
             };
             img.src = event.target.result;
         };
@@ -376,39 +374,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => {
             console.error('Error saving the image:', error);
         });
-
-        /*
-        const selectedSize = labelSize.value;
-        const imageData = canvas.toDataURL('image/jpeg', 1.0);
-
-        // Replace with your actual server or printing script endpoint
-        const printServerUrl = 'http://192.168.2.47:80/print_label';
-
-        fetch(printServerUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ imageData: imageData, size: selectedSize })
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.text();
-            } else {
-                throw new Error('Network response was not ok.');
-            }
-        })
-        .then(data => {
-            alert("Label printed successfully!");
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            textBox.value = "";
-            imageInput.value = null;
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("An error occurred. Please check the console and server script.");
-        });
-        */
     });
 
     // Initialize canvas with default value
