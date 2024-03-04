@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const imageInput = document.getElementById('image-input');
     const textBox = document.getElementById('text-box');
     const printButton = document.getElementById('print-button');
+    const fitButton = document.getElementById('fit-button');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -114,14 +115,14 @@ document.addEventListener('DOMContentLoaded', function () {
     {
         if (img === null) return 0;
 
-        return (canvas.width - img.width) / 2 + img_offsets.x;
+        return (canvas.width - (img.width + img_offsets.w)) / 2 + img_offsets.x;
     }
 
     function calc_img_y()
     {
         if (img === null) return 0;
 
-        return (canvas.height - img.height) / 2 + img_offsets.y;
+        return (canvas.height - (img.height + img_offsets.h)) / 2 + img_offsets.y;
     }
 
     function calc_img_w()
@@ -294,28 +295,34 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             else if (canvas.style.cursor == "se-resize") // top left
             {
-                img_offsets.x += delta_x;
-                img_offsets.y += delta_y;
+                // NOTE: image is scaled before it's translated so we only apply half the delta here
+                img_offsets.x += delta_x / 2;
+                img_offsets.y += delta_y / 2;
 
                 img_offsets.w -= delta_x;
                 img_offsets.h -= delta_y;
             }
             else if (canvas.style.cursor == "sw-resize") // top right
             {
-                img_offsets.y += delta_y;
+                img_offsets.x += delta_x / 2;
+                img_offsets.y += delta_y / 2;
 
                 img_offsets.w += delta_x;
                 img_offsets.h -= delta_y;
             }
             else if (canvas.style.cursor == "ne-resize") // bottom left
             {
-                img_offsets.x += delta_x;
+                img_offsets.x += delta_x / 2;
+                img_offsets.y += delta_y / 2;
 
                 img_offsets.w -= delta_x;
                 img_offsets.h += delta_y;
             }
             else if (canvas.style.cursor == "nw-resize") // bottom right
             {
+                img_offsets.x += delta_x / 2;
+                img_offsets.y += delta_y / 2;
+
                 img_offsets.w += delta_x;
                 img_offsets.h += delta_y;
             }
@@ -338,12 +345,100 @@ document.addEventListener('DOMContentLoaded', function () {
                 img_offsets.y = 0;
                 img_offsets.w = 0;
                 img_offsets.h = 0;
-                update_canvas();
+                fit_to_label();
             };
             img.src = event.target.result;
         };
         reader.readAsDataURL(file);
     });
+
+    function fit_to_label()
+    {
+        if (img == null) return;
+
+        if (calc_img_w() > label_w || calc_img_h() > label_h)
+        {
+            shrink_to_label();
+        }
+        else
+        {
+            grow_to_label();
+        }
+    }
+
+    function shrink_to_label()
+    {
+        if (img == null) return;
+
+        var w = calc_img_w();
+        var h = calc_img_h();
+
+        const aspect = w / parseFloat(h);
+
+        if (w > label_w)
+        {
+            resize_w = w - label_w;
+            resize_h = parseInt(resize_w / aspect);
+
+            img_offsets.w -= resize_w;
+            img_offsets.h -= resize_h;
+
+            w = calc_img_w();
+            h = calc_img_h();
+        }
+
+        if (h > label_h)
+        {
+            resize_h = h - label_h;
+            resize_w = parseInt(resize_h * aspect);
+
+            img_offsets.w -= resize_w;
+            img_offsets.h -= resize_h;
+        }
+
+        img_offsets.x = 0;
+        img_offsets.y = 0;
+
+        update_canvas();
+    }
+
+    function grow_to_label()
+    {
+        if (img == null) return;
+
+        var w = calc_img_w();
+        var h = calc_img_h();
+
+        const aspect = w / parseFloat(h);
+
+        if (w < label_w)
+        {
+            resize_w = label_w - w;
+            resize_h = parseInt(resize_w / aspect);
+
+            img_offsets.w += resize_w;
+            img_offsets.h += resize_h;
+
+            w = calc_img_w();
+            h = calc_img_h();
+        }
+
+        if (h < label_h)
+        {
+            resize_h = label_h - h;
+            resize_w = parseInt(resize_h * aspect);
+
+            img_offsets.w += resize_w;
+            img_offsets.h += resize_h;
+        }
+
+        img_offsets.x = 0;
+        img_offsets.y = 0;
+
+        update_canvas();
+    }
+
+    fitButton.addEventListener('click', fit_to_label);
 
     textBox.addEventListener('input', update_canvas);
 
