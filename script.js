@@ -350,6 +350,34 @@ document.addEventListener('DOMContentLoaded', function () {
     textBox.addEventListener('input', update_canvas);
 
     printButton.addEventListener('click', function() {
+        const label_canvas = document.createElement("canvas");
+        label_canvas.width = label_w;
+        label_canvas.height = label_h;
+        const label_ctx = label_canvas.getContext('2d');
+
+        const x = (canvas.width - label_w) / 2;
+        const y = (canvas.height - label_h) / 2;
+
+        label_ctx.drawImage(canvas, x, y, label_w, label_h, 0, 0, label_w, label_h);
+
+        const img_data_url = label_canvas.toDataURL('image/jpeg');
+
+        fetch("http://localhost:3000", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ imageData: img_data_url, directory: 'printbox' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('The image was saved successfully:', data);
+        })
+        .catch(error => {
+            console.error('Error saving the image:', error);
+        });
+
+        /*
         const selectedSize = labelSize.value;
         const imageData = canvas.toDataURL('image/jpeg', 1.0);
 
@@ -380,6 +408,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error("Error:", error);
             alert("An error occurred. Please check the console and server script.");
         });
+        */
     });
 
     // Initialize canvas with default value
