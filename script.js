@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const debug = true;
+
     const labelSize = document.getElementById('label-size');
     const imageInput = document.getElementById('image-input');
     const textBox = document.getElementById('text-box');
@@ -26,11 +28,121 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var img = null;
     var img_offsets = { x: 0, y: 0 };
+    const img_resize_controls_radius = 10;
     var label_w = 0;
     var label_h = 0;
+    var mouse_x = 0;
+    var mouse_y = 0;
 
     function get_pixel_for_mm(mm) {
         return dpmm * mm * window.devicePixelRatio;
+    }
+
+    function draw_img_lines()
+    {
+        var img_x = calc_img_x();
+        var img_y = calc_img_y();
+
+        ctx.lineWidth = 1;
+
+        var radius = 10;
+
+        ctx.beginPath();
+        ctx.arc(
+            img_x,
+            img_y,
+            img_resize_controls_radius,
+            0,
+            Math.PI * 2
+        );
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(img_x + img_resize_controls_radius, img_y);
+        ctx.lineTo(img_x + img.width - img_resize_controls_radius, img_y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(
+            img_x + img.width,
+            img_y,
+            img_resize_controls_radius,
+            0,
+            Math.PI * 2
+        );
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(img_x + img.width, img_y + radius);
+        ctx.lineTo(img_x + img.width, img_y + img.height - radius);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(
+            img_x + img.width,
+            img_y + img.height,
+            img_resize_controls_radius,
+            0,
+            Math.PI * 2
+        );
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(img_x + img.width - img_resize_controls_radius, img_y + img.height);
+        ctx.lineTo(img_x + img_resize_controls_radius, img_y + img.height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(
+            img_x,
+            img_y + img.height,
+            img_resize_controls_radius,
+            0,
+            Math.PI * 2
+        );
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(img_x, img_y + img.height - radius);
+        ctx.lineTo(img_x, img_y + radius);
+        ctx.stroke();
+    }
+
+    function calc_img_x()
+    {
+        if (img === null) return 0;
+
+        return (canvas.width - img.width) / 2 + img_offsets.x;
+    }
+
+    function calc_img_y()
+    {
+        if (img === null) return 0;
+
+        return (canvas.height - img.height) / 2 + img_offsets.y;
+    }
+
+    function update_img()
+    {
+        ctx.drawImage(
+            img,
+            calc_img_x(),
+            calc_img_y(),
+            img.width,
+            img.height);
+
+        draw_img_lines();
+    }
+
+    function draw_debug_text() {
+        if (!debug) return;
+
+        ctx.textAlign = "left";
+        ctx.fillText(`Mouse: (${mouse_x}, ${mouse_y})`, 5, 25);
+        if (img != null)
+        {
+            ctx.fillText(`Img: (${calc_img_x()}, ${calc_img_y()}, ${img.width}, ${img.height})`, 5, 50);
+        }
     }
 
     // Function to update the canvas based on label size
@@ -54,6 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Text
         ctx.font = "20px sans-serif";
+        draw_debug_text();
         ctx.textAlign = "center";
         ctx.fillText(sizes[labelSize.value].text, canvas.width / 2, 25);
 
@@ -63,25 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         else
         {
-            var img_x = x + img_offsets.x - (img.width / 2) + label_w / 2;
-            var img_y = y + img_offsets.y - (img.height / 2) + label_h / 2;
-
-            ctx.drawImage(
-                img,
-                img_x,
-                img_y,
-                img.width,
-                img.height);
-
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.rect(
-                img_x,
-                img_y,
-                img.width,
-                img.height);
-            ctx.stroke();
-            ctx.closePath();
+            update_img();
         }
 
         // Draw the outline centered in the canvas
@@ -102,6 +197,63 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     labelSize.addEventListener('change', update_canvas);
+
+    function set_cursor(mouse_x, mouse_y)
+    {
+        if (img != null)
+        {
+            var img_x = calc_img_x();
+            var img_y = calc_img_y();
+
+            if (mouse_x > img_x && mouse_x < img_x + img.width &&
+                mouse_y > img_y && mouse_y < img_y + img.height)
+            {
+                canvas.style.cursor = "move";
+            }
+            else
+            {
+                canvas.style.cursor = "default";
+            }
+
+            // overwrite behavior
+            const distance_from_top_left_control = Math.sqrt((mouse_x - img_x) ** 2 + (mouse_y - img_y) ** 2);
+            if (distance_from_top_left_control < img_resize_controls_radius)
+            {
+                canvas.style.cursor = "se-resize";
+            }
+
+            const distance_from_top_right_control = Math.sqrt((mouse_x - (img_x + img.width)) ** 2 + (mouse_y - img_y) ** 2);
+            if (distance_from_top_right_control < img_resize_controls_radius)
+            {
+                canvas.style.cursor = "sw-resize";
+            }
+
+            const distance_from_bottom_left_control = Math.sqrt((mouse_x - img_x) ** 2 + (mouse_y - (img_y + img.height)) ** 2);
+            if (distance_from_bottom_left_control < img_resize_controls_radius)
+            {
+                canvas.style.cursor = "ne-resize";
+            }
+
+            const distance_from_bottom_right_control = Math.sqrt((mouse_x - (img_x + img.width)) ** 2 + (mouse_y - (img_y + img.height)) ** 2);
+            if (distance_from_bottom_right_control < img_resize_controls_radius)
+            {
+                canvas.style.cursor = "nw-resize";
+            }
+        }
+        else
+        {
+            canvas.style.cursor = "default";
+        }
+    }
+
+    canvas.addEventListener('mousemove', function(e) {
+        const canvas_rect = canvas.getBoundingClientRect();
+        mouse_x = e.clientX - canvas_rect.x;
+        mouse_y = e.clientY - canvas_rect.y;
+
+        set_cursor(mouse_x, mouse_y);
+        update_canvas();
+    });
 
     imageInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
