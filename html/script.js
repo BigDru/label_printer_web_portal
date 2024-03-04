@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ imageData: img_data_url, directory: 'printbox' })
+            body: JSON.stringify({ imageData: img_data_url })
         })
         .then(response => response.json())
         .then(data => {
