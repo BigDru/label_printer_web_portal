@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return img.height + img_offsets.h;
     }
 
-    function update_img()
+    function update_img(draw_controls)
     {
         ctx.drawImage(
             img,
@@ -155,7 +155,10 @@ document.addEventListener('DOMContentLoaded', function () {
             calc_img_w(),
             calc_img_h());
 
-        draw_img_lines();
+        if (draw_controls)
+        {
+            draw_img_lines();
+        }
     }
 
     function draw_debug_text() {
@@ -231,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         else
         {
-            update_img();
+            update_img(true);
         }
 
         // Draw the outline centered in the canvas
@@ -497,6 +500,14 @@ document.addEventListener('DOMContentLoaded', function () {
     textBox.addEventListener('input', update_canvas);
 
     printButton.addEventListener('click', function() {
+        if (img != null)
+        {
+            ctx.fillStyle = "rgba(255, 255, 255, 1)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(0, 0, 0, 1)";
+            update_img(draw_controls=false);
+        }
+
         const label_canvas = document.createElement("canvas");
         label_canvas.width = label_w;
         label_canvas.height = label_h;
@@ -523,6 +534,8 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => {
             console.error('Error saving the image:', error);
         });
+
+        update_canvas();
     });
 
     // Initialize canvas with default value
