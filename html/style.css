@@ -55,6 +55,31 @@ textarea {
     font-size: 16px;
 }
 
+#image-controls-container {
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
+#image-controls-container > div {
+    padding: 10px;
+}
+
+#button-container
+{
+    display: grid;
+    grid-template-columns: auto;
+}
+
+#button-container > button
+{
+    margin-bottom: 10px;
+}
+
+#button-container > button:last-child
+{
+    margin-bottom: 0px;
+}
+
 #canvas-container {
     min-height: 100%;
     border: 1px solid #ccc;

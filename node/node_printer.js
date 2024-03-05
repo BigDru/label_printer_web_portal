@@ -16,7 +16,7 @@ app.post('/', (req, res) => {
     const base64Data = data.replace(/^data:image\/jpeg;base64,/, "");
 
     // Write the file to the 'printbox' directory
-    fs.writeFile('/var/www/html/printbox/print.jpg', base64Data, 'base64', (err) => {
+    fs.writeFile(`/var/www/html/printbox/${req.body.label}.jpg`, base64Data, 'base64', (err) => {
         if (err) {
             console.error(err);
             return res.status(500).send(err);

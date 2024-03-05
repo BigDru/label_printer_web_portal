@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const img_resize_controls_radius = 10;
     var label_w = 0;
     var label_h = 0;
+    var label_file = "";
     var mouse_x = 0;
     var mouse_y = 0;
 
@@ -173,15 +174,18 @@ document.addEventListener('DOMContentLoaded', function () {
         canvas.width = canvas.parentElement.clientWidth;
         canvas.height = canvas.parentElement.clientHeight;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255, 255, 255, 1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(0, 0, 0, 1)";
 
         const sizes = {
-            SmallLabelPrinter: { width: get_pixel_for_mm(50), height: get_pixel_for_mm(30), text: "50mm x 30mm" },
-            LargeLabelPrinter: { width: get_pixel_for_mm(100), height: get_pixel_for_mm(150), text: "100mm x 150mm" },
+            SmallLabelPrinter: { width: get_pixel_for_mm(50), height: get_pixel_for_mm(30), text: "50mm x 30mm", file: "small" },
+            LargeLabelPrinter: { width: get_pixel_for_mm(100), height: get_pixel_for_mm(150), text: "100mm x 150mm", file: "large"},
         };
 
         label_w = sizes[labelSize.value].width;
         label_h = sizes[labelSize.value].height;
+        label_file = sizes[labelSize.value].file;
 
         // Calculate the position for the outline to be centered
         const x = (canvas.width - label_w) / 2;
@@ -195,7 +199,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (img === null)
         {
-            ctx.fillText(textBox.value, canvas.width / 2, canvas.height / 2);
+            let lines = textBox.value.split('\n');
+            let fontSize = 20;
+            let fontFace = "sans-serif";
+            ctx.font = `${fontSize}px ${fontFace}`;
+
+            let lineHeight = fontSize * 1.0;
+            let text_height = lineHeight * lines.length - lineHeight + fontSize;
+
+            // NOTE: Last line shouldn't have inter-line spacing
+            let start_y = (canvas.height - text_height) / 2;
+            let y = start_y;
+
+            let max_width = 0;
+            lines.forEach((line) => {
+                let metrics = ctx.measureText(line);
+                if (metrics.width > max_width) max_width = metrics.width;
+
+                ctx.fillText(line, canvas.width / 2, y + fontSize);
+                y += lineHeight;
+            });
+
+            if (debug)
+            {
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = "rgba(255, 0, 0, 1)";
+                ctx.beginPath();
+                ctx.rect((canvas.width - max_width) / 2, start_y, max_width, text_height);
+                ctx.stroke();
+            }
         }
         else
         {
@@ -204,6 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Draw the outline centered in the canvas
         ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(0, 0, 0, 1)";
         ctx.beginPath();
         ctx.rect(x, y, label_w, label_h);
         ctx.stroke();
@@ -481,7 +514,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ imageData: img_data_url })
+            body: JSON.stringify({ imageData: img_data_url, label: label_file})
         })
         .then(response => response.json())
         .then(data => {
