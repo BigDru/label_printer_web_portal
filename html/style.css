@@ -47,6 +47,46 @@ main > div {
     padding: 10px;
 }
 
+#text-label-container {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
+#text-label-container > * {
+    margin: 10px;
+}
+
+#text-box-container {
+    display: grid;
+    grid-template-rows: auto auto;
+}
+
+#text-box-toolbar {
+    display: flex;
+    justify-content: space-between;
+}
+
+#text-box-toolbar > * {
+    margin-bottom: 10px;
+    margin-right: 20px;
+}
+
+#text-box-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+#text-box-buttons > * {
+    width: 20px;
+    height: 20px;
+    padding: 0px;
+    margin-right: 2px;
+}
+
+#text-box-toolbar > *:last-child {
+    margin-right: auto;
+}
+
 textarea {
     width: 100%;
     min-height: 80px;
@@ -64,19 +104,16 @@ textarea {
     padding: 10px;
 }
 
-#button-container
-{
+#button-container {
     display: grid;
     grid-template-columns: auto;
 }
 
-#button-container > button
-{
+#button-container > button {
     margin-bottom: 10px;
 }
 
-#button-container > button:last-child
-{
+#button-container > button:last-child {
     margin-bottom: 0px;
 }
 

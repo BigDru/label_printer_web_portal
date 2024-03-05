@@ -23,8 +23,36 @@
         <main>
             <div id="controls">
                 <h2>Enter text for label:</h2>
-                <div id="text-box-container">
-                    <textarea id="text-box"></textarea>
+                <div id="text-label-container">
+                    <fieldset>
+                        <legend>Text Label Type</legend>
+                        <div>
+                            <input type="radio" id="label-type-ship-to" name="text-label-type" value="ship-to" checked />
+                            <label for="label-type-ship-to">Ship To</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="label-type-raw" name="text-label-type" value="raw" />
+                            <label for="label-type-raw">Raw</label>
+                        </div>
+                    </fieldset>
+                    <div id="text-box-container">
+                        <div id="text-box-toolbar">
+                            <div id="text-box-buttons">
+                                <button id="text-button-justify-left">L</button>
+                                <button id="text-button-justify-center">C</button>
+                                <button id="text-button-justify-right">R</button>
+                                <div></div>
+                                <button id="text-button-justify-top">T</button>
+                                <button id="text-button-justify-mid">M</button>
+                                <button id="text-button-justify-bot">B</button>
+                            </div>
+                            <div style="align-content: center;">
+                                <label for="font-size">Font Size:</label>
+                                <input type="number" id="font-size" min="1" value="20" step="1" max="999" />
+                            </div>
+                        </div>
+                        <textarea id="text-box" placeholder="Label Text..."></textarea>
+                    </div>
                 </div>
                 <h2>Load image for label:</h2>
                 <div id="load-image-container">

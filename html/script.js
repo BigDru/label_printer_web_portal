@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const labelSize = document.getElementById('label-size');
     const imageInput = document.getElementById('image-input');
+    const text_label_type = document.querySelectorAll('input[name="text-label-type"]');
+    const text_font_size = document.getElementById('font-size');
     const textBox = document.getElementById('text-box');
     const printButton = document.getElementById('print-button');
     const resetButton = document.getElementById('reset-button');
@@ -180,6 +182,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.fillStyle = "rgba(255, 255, 255, 1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "rgba(0, 0, 0, 1)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 1)";
 
         const sizes = {
             SmallLabelPrinter: { width: get_pixel_for_mm(50), height: get_pixel_for_mm(30), text: "50mm x 30mm", file: "small" },
@@ -202,25 +205,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (img === null)
         {
-            let lines = textBox.value.split('\n');
-            let fontSize = 20;
-            let fontFace = "sans-serif";
-            ctx.font = `${fontSize}px ${fontFace}`;
+            let text_label_type_value = document.querySelector('input[name="text-label-type"]:checked').value;
 
-            let lineHeight = fontSize * 1.0;
-            let text_height = lineHeight * lines.length - lineHeight + fontSize;
+            if (text_label_type_value == "ship-to")
+            {
+            }
+
+            let lines = textBox.value.split('\n');
+            let font_size = parseInt(text_font_size.value);
+            let font_face = "sans-serif";
+            ctx.font = `${font_size}px ${font_face}`;
+
+            let intraline_height = 1.2; // TODO: make control
+            let multiline_line_height = font_size * intraline_height;
 
             // NOTE: Last line shouldn't have inter-line spacing
+            let text_height = multiline_line_height * (lines.length - 1) + font_size;
+
             let start_y = (canvas.height - text_height) / 2;
-            let y = start_y;
+            let y = start_y + font_size;
 
             let max_width = 0;
             lines.forEach((line) => {
                 let metrics = ctx.measureText(line);
-                if (metrics.width > max_width) max_width = metrics.width;
 
-                ctx.fillText(line, canvas.width / 2, y + fontSize);
-                y += lineHeight;
+                if (metrics.width > max_width)
+                {
+                    max_width = metrics.width;
+                }
+
+                ctx.fillText(line, canvas.width / 2, y);
+                y += multiline_line_height;
             });
 
             if (debug)
@@ -261,6 +276,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     labelSize.addEventListener('change', update_canvas);
+
+    text_label_type.forEach(radio => {
+        radio.addEventListener('change', update_canvas);
+    });
+
+    text_font_size.addEventListener('input', update_canvas);
+
+    textBox.addEventListener('input', update_canvas);
 
     function set_cursor(mouse_x, mouse_y)
     {
@@ -496,8 +519,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     fitButton.addEventListener('click', fit_to_label);
-
-    textBox.addEventListener('input', update_canvas);
 
     printButton.addEventListener('click', function() {
         if (img != null)
