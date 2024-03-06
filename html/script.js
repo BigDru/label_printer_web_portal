@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const debug = true;
+    const debug = false;
 
     const labelSize = document.getElementById('label-size');
     const imageInput = document.getElementById('image-input');
