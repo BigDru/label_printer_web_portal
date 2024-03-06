@@ -15,8 +15,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const text_margin_left = document.getElementById('text-margin-left');
     const textBox = document.getElementById('text-box');
     const printButton = document.getElementById('print-button');
-    const resetButton = document.getElementById('reset-button');
-    const fitButton = document.getElementById('fit-button');
+    const resetButton = document.getElementById('image-reset-button');
+    const removeButton = document.getElementById('image-remove-button');
+    const fitButton = document.getElementById('image-fit-button');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -548,6 +549,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     resetButton.addEventListener('click', function(){
+        reset_image();
+        update_canvas();
+    });
+
+    removeButton.addEventListener('click', function(){
+        img = null;
         reset_image();
         update_canvas();
     });
