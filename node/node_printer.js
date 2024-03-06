@@ -22,6 +22,7 @@ app.post('/', (req, res) => {
             return res.status(500).send(err);
         }
         res.send({ message: 'File saved successfully' });
+        console.log(`Saved file ${req.body.label}.jpg`);
     });
 });
 

@@ -668,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const img_data_url = label_canvas.toDataURL('image/jpeg');
 
-        fetch("http://localhost:3000", {
+        fetch(`http://${window.location.hostname}:3000`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
