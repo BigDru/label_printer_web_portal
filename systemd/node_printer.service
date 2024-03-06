@@ -1,0 +1,9 @@
+[Unit]
+Description=Node.js Printer Service
+
+[Service]
+ExecStart=/usr/bin/node /var/node_apps/node_printer/node_printer.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

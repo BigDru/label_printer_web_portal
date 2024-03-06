@@ -1,0 +1,9 @@
+[Unit]
+Description=Print Monitor Service
+
+[Service]
+ExecStart=/bin/bash /root/bin/print_monitor.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
