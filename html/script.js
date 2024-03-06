@@ -4,7 +4,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const labelSize = document.getElementById('label-size');
     const imageInput = document.getElementById('image-input');
     const text_label_type = document.querySelectorAll('input[name="text-label-type"]');
+    const text_justify_buttons_hor = document.querySelectorAll('.text-button-justify-hor');
+    const text_justify_buttons_vert = document.querySelectorAll('.text-button-justify-vert');
     const text_font_size = document.getElementById('font-size');
+    const text_ship_margin_top = document.getElementById('ship-to-margin-top');
+    const text_ship_margin_left = document.getElementById('ship-to-margin-left');
+    const text_margin_top = document.getElementById('text-margin-top');
+    const text_margin_left = document.getElementById('text-margin-left');
     const textBox = document.getElementById('text-box');
     const printButton = document.getElementById('print-button');
     const resetButton = document.getElementById('reset-button');
@@ -41,6 +47,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var label_w = 0;
     var label_h = 0;
     var label_file = "";
+    var text_justify_horizontal = "left"; // Ship to default
+    var text_justify_vertical = "top"; // Ship to default
     var mouse_x = 0;
     var mouse_y = 0;
 
@@ -163,6 +171,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function update_alignment() {
+        text_justify_buttons_vert.forEach(b => {
+            if (b.classList.contains('active'))
+            {
+                text_justify_vertical = b.id.split("-")[3];
+            }
+        });
+        text_justify_buttons_hor.forEach(b => {
+            if (b.classList.contains('active'))
+            {
+                text_justify_horizontal = b.id.split("-")[3];
+            }
+        });
+    }
+
     function draw_debug_text() {
         if (!debug) return;
 
@@ -205,28 +228,74 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (img === null)
         {
-            let text_label_type_value = document.querySelector('input[name="text-label-type"]:checked').value;
-
-            if (text_label_type_value == "ship-to")
-            {
-            }
+            update_alignment();
 
             let lines = textBox.value.split('\n');
             let font_size = parseInt(text_font_size.value);
             let font_face = "sans-serif";
             ctx.font = `${font_size}px ${font_face}`;
 
-            let intraline_height = 1.2; // TODO: make control
-            let multiline_line_height = font_size * intraline_height;
+            let intraline_height_ratio = 1.2; // TODO: make control
+            let multiline_line_height = font_size * intraline_height_ratio;
 
             // NOTE: Last line shouldn't have inter-line spacing
             let text_height = multiline_line_height * (lines.length - 1) + font_size;
 
-            let start_y = (canvas.height - text_height) / 2;
-            let y = start_y + font_size;
+            let text_y;
+            let ship_to_y_offset;
+            switch (text_justify_vertical)
+            {
+                case "top":
+                    text_y = (canvas.height - label_h) / 2;
+                    ship_to_y_offset = multiline_line_height + parseInt(text_ship_margin_top.value);
+                    break;
+                case "mid":
+                    text_y = canvas.height / 2 - text_height / 2;
+                    ship_to_y_offset = (multiline_line_height + parseInt(text_ship_margin_top.value)) / 2;
+                    break;
+                case "bot":
+                    text_y = (canvas.height + label_h) / 2 - text_height;
+                    ship_to_y_offset = 0;
+                    break;
+            }
+            // NOTE: Fonts start at y and paint upwards (negative y)
+            text_y += font_size;
 
+            ctx.textAlign = text_justify_horizontal;
+            let text_x;
+            switch (text_justify_horizontal)
+            {
+                case "left":
+                    text_x = (canvas.width - label_w) / 2;
+                    break;
+                case "center":
+                    text_x = canvas.width / 2;
+                    break;
+                case "right":
+                    text_x = (canvas.width + label_w) / 2;
+                    break;
+            }
+
+            let text_label_type_value = document.querySelector('input[name="text-label-type"]:checked').value;
+            if (text_label_type_value == "ship-to")
+            {
+                ctx.font = `bold ${font_size}px ${font_face}`;
+                ctx.fillText(
+                    "Ship to:",
+                    text_x + parseInt(text_ship_margin_left.value),
+                    (canvas.height - label_h) / 2 + font_size + parseInt(text_ship_margin_top.value));
+                ctx.font = `${font_size}px ${font_face}`;
+
+                // NOTE: Bold text has the same height as non-bold text
+                text_y += ship_to_y_offset;
+            }
+
+            // Text
+            text_x += parseInt(text_margin_left.value);
+            text_y += parseInt(text_margin_top.value);
+            let start_y = text_y;
             let max_width = 0;
-            lines.forEach((line) => {
+            lines.forEach(line => {
                 let metrics = ctx.measureText(line);
 
                 if (metrics.width > max_width)
@@ -234,8 +303,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     max_width = metrics.width;
                 }
 
-                ctx.fillText(line, canvas.width / 2, y);
-                y += multiline_line_height;
+                ctx.fillText(line, text_x, text_y);
+                text_y += multiline_line_height;
             });
 
             if (debug)
@@ -243,7 +312,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 ctx.lineWidth = 1;
                 ctx.strokeStyle = "rgba(255, 0, 0, 1)";
                 ctx.beginPath();
-                ctx.rect((canvas.width - max_width) / 2, start_y, max_width, text_height);
+
+                // NOTE: debug_x represents the change in behavior for changing the horizontal justification
+                let debug_x;
+                switch (text_justify_horizontal)
+                {
+                    case "left":
+                        debug_x = text_x;
+                        break;
+                    case "center":
+                        debug_x = text_x - max_width / 2;
+                        break;
+                    case "right":
+                        debug_x = text_x - max_width;
+                        break;
+                }
+
+                ctx.rect(
+                    debug_x,
+                    // NOTE: Box needs to start at top of text
+                    start_y - font_size,
+                    max_width,
+                    text_height);
                 ctx.stroke();
             }
         }
@@ -281,7 +371,27 @@ document.addEventListener('DOMContentLoaded', function () {
         radio.addEventListener('change', update_canvas);
     });
 
+    text_justify_buttons_hor.forEach(button => {
+        button.addEventListener('click', function() {
+            text_justify_buttons_hor.forEach(b => b.classList.remove('active'));
+            button.classList.add('active');
+            update_canvas();
+        });
+    });
+
+    text_justify_buttons_vert.forEach(button => {
+        button.addEventListener('click', function() {
+            text_justify_buttons_vert.forEach(b => b.classList.remove('active'));
+            button.classList.add('active');
+            update_canvas();
+        });
+    });
+
     text_font_size.addEventListener('input', update_canvas);
+    text_ship_margin_top.addEventListener('input', update_canvas);
+    text_ship_margin_left.addEventListener('input', update_canvas);
+    text_margin_top.addEventListener('input', update_canvas);
+    text_margin_left.addEventListener('input', update_canvas);
 
     textBox.addEventListener('input', update_canvas);
 

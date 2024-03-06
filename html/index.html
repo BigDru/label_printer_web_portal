@@ -35,16 +35,26 @@
                             <label for="label-type-raw">Raw</label>
                         </div>
                     </fieldset>
+                    <div id="text-label-type-options">
+                        <label for="text-margin-top">Top Margin:</label>
+                        <input type="number" id="text-margin-top" min="-999" value="0" step="1" max="999" />
+                        <label for="text-margin-left">Left Margin:</label>
+                        <input type="number" id="text-margin-left" min="-999" value="10" step="1" max="999" />
+                        <label for="ship-to-margin-top">Ship To Top Margin:</label>
+                        <input type="number" id="ship-to-margin-top" min="-999" value="10" step="1" max="999" />
+                        <label for="ship-to-margin-left">Ship To Left Margin:</label>
+                        <input type="number" id="ship-to-margin-left" min="-999" value="10" step="1" max="999" />
+                    </div>
                     <div id="text-box-container">
                         <div id="text-box-toolbar">
                             <div id="text-box-buttons">
-                                <button id="text-button-justify-left">L</button>
-                                <button id="text-button-justify-center">C</button>
-                                <button id="text-button-justify-right">R</button>
+                                <button id="text-button-justify-left" class="text-button-justify-hor active">L</button>
+                                <button id="text-button-justify-center" class="text-button-justify-hor">C</button>
+                                <button id="text-button-justify-right" class="text-button-justify-hor">R</button>
                                 <div></div>
-                                <button id="text-button-justify-top">T</button>
-                                <button id="text-button-justify-mid">M</button>
-                                <button id="text-button-justify-bot">B</button>
+                                <button id="text-button-justify-top" class="text-button-justify-vert active">T</button>
+                                <button id="text-button-justify-mid" class="text-button-justify-vert">M</button>
+                                <button id="text-button-justify-bot" class="text-button-justify-vert">B</button>
                             </div>
                             <div style="align-content: center;">
                                 <label for="font-size">Font Size:</label>

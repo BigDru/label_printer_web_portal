@@ -49,11 +49,23 @@ main > div {
 
 #text-label-container {
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: auto auto auto;
 }
 
 #text-label-container > * {
     margin: 10px;
+}
+
+#text-label-type-options {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-content: top;
+    margin-bottom: auto;
+}
+
+#text-label-type-options > * {
+    height: 20px;
+    margin-bottom: 5px;
 }
 
 #text-box-container {
@@ -81,6 +93,19 @@ main > div {
     height: 20px;
     padding: 0px;
     margin-right: 2px;
+}
+
+#text-box-buttons button {
+    border: 1px solid #333;
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+#text-box-buttons button.active {
+    border: 1px solid #0056b3;
+    color: white;
+    background-color: #007bff;
+    cursor: pointer;
 }
 
 #text-box-toolbar > *:last-child {
