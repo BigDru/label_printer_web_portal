@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const text_justify_buttons_hor = document.querySelectorAll('.text-button-justify-hor');
     const text_justify_buttons_vert = document.querySelectorAll('.text-button-justify-vert');
     const text_font_size = document.getElementById('font-size');
+    const text_ship_margin_top_label = document.getElementById('ship-to-margin-top-label');
+    const text_ship_margin_left_label = document.getElementById('ship-to-margin-left-label');
     const text_ship_margin_top = document.getElementById('ship-to-margin-top');
     const text_ship_margin_left = document.getElementById('ship-to-margin-left');
     const text_margin_top = document.getElementById('text-margin-top');
@@ -368,7 +370,15 @@ document.addEventListener('DOMContentLoaded', function () {
     labelSize.addEventListener('change', update_canvas);
 
     text_label_type.forEach(radio => {
-        radio.addEventListener('change', update_canvas);
+        radio.addEventListener('change', function() {
+            let text_label_type_value = document.querySelector('input[name="text-label-type"]:checked').value;
+            var is_ship_to = text_label_type_value == "ship-to";
+            text_ship_margin_top.style.display = is_ship_to ? "inline-block" : "none";
+            text_ship_margin_top_label.style.display = is_ship_to ? "inline-block" : "none";
+            text_ship_margin_left.style.display = is_ship_to ? "inline-block" : "none";
+            text_ship_margin_left_label.style.display = is_ship_to ? "inline-block" : "none";
+            update_canvas();
+        });
     });
 
     text_justify_buttons_hor.forEach(button => {
