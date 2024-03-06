@@ -200,6 +200,117 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function update_text() {
+        update_alignment();
+
+        let lines = textBox.value.split('\n');
+        let font_size = parseInt(text_font_size.value);
+        let font_face = "sans-serif";
+        ctx.font = `${font_size}px ${font_face}`;
+
+        let intraline_height_ratio = 1.2; // TODO: make control
+        let multiline_line_height = font_size * intraline_height_ratio;
+
+        // NOTE: Last line shouldn't have inter-line spacing
+        let text_height = multiline_line_height * (lines.length - 1) + font_size;
+
+        let text_y;
+        let ship_to_y_offset;
+        switch (text_justify_vertical)
+            {
+            case "top":
+                text_y = (canvas.height - label_h) / 2;
+                ship_to_y_offset = multiline_line_height + parseInt(text_ship_margin_top.value);
+                break;
+            case "mid":
+                text_y = canvas.height / 2 - text_height / 2;
+                ship_to_y_offset = (multiline_line_height + parseInt(text_ship_margin_top.value)) / 2;
+                break;
+            case "bot":
+                text_y = (canvas.height + label_h) / 2 - text_height;
+                ship_to_y_offset = 0;
+                break;
+        }
+        // NOTE: Fonts start at y and paint upwards (negative y)
+        text_y += font_size;
+
+        ctx.textAlign = text_justify_horizontal;
+        let text_x;
+        switch (text_justify_horizontal)
+            {
+            case "left":
+                text_x = (canvas.width - label_w) / 2;
+                break;
+            case "center":
+                text_x = canvas.width / 2;
+                break;
+            case "right":
+                text_x = (canvas.width + label_w) / 2;
+                break;
+        }
+
+        let text_label_type_value = document.querySelector('input[name="text-label-type"]:checked').value;
+        if (text_label_type_value == "ship-to")
+    {
+            ctx.font = `bold ${font_size}px ${font_face}`;
+            ctx.fillText(
+                "Ship to:",
+                text_x + parseInt(text_ship_margin_left.value),
+                (canvas.height - label_h) / 2 + font_size + parseInt(text_ship_margin_top.value));
+            ctx.font = `${font_size}px ${font_face}`;
+
+            // NOTE: Bold text has the same height as non-bold text
+            text_y += ship_to_y_offset;
+        }
+
+        // Text
+        text_x += parseInt(text_margin_left.value);
+        text_y += parseInt(text_margin_top.value);
+        let start_y = text_y;
+        let max_width = 0;
+        lines.forEach(line => {
+            let metrics = ctx.measureText(line);
+
+            if (metrics.width > max_width)
+        {
+                max_width = metrics.width;
+            }
+
+            ctx.fillText(line, text_x, text_y);
+            text_y += multiline_line_height;
+        });
+
+        if (debug)
+    {
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = "rgba(255, 0, 0, 1)";
+            ctx.beginPath();
+
+            // NOTE: debug_x represents the change in behavior for changing the horizontal justification
+            let debug_x;
+            switch (text_justify_horizontal)
+                {
+                case "left":
+                    debug_x = text_x;
+                    break;
+                case "center":
+                    debug_x = text_x - max_width / 2;
+                    break;
+                case "right":
+                    debug_x = text_x - max_width;
+                    break;
+            }
+
+            ctx.rect(
+                debug_x,
+                // NOTE: Box needs to start at top of text
+                start_y - font_size,
+                max_width,
+                text_height);
+            ctx.stroke();
+        }
+    }
+
     // Function to update the canvas based on label size
     function update_canvas() {
         canvas.width = canvas.parentElement.clientWidth;
@@ -231,114 +342,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (img === null)
         {
-            update_alignment();
-
-            let lines = textBox.value.split('\n');
-            let font_size = parseInt(text_font_size.value);
-            let font_face = "sans-serif";
-            ctx.font = `${font_size}px ${font_face}`;
-
-            let intraline_height_ratio = 1.2; // TODO: make control
-            let multiline_line_height = font_size * intraline_height_ratio;
-
-            // NOTE: Last line shouldn't have inter-line spacing
-            let text_height = multiline_line_height * (lines.length - 1) + font_size;
-
-            let text_y;
-            let ship_to_y_offset;
-            switch (text_justify_vertical)
-            {
-                case "top":
-                    text_y = (canvas.height - label_h) / 2;
-                    ship_to_y_offset = multiline_line_height + parseInt(text_ship_margin_top.value);
-                    break;
-                case "mid":
-                    text_y = canvas.height / 2 - text_height / 2;
-                    ship_to_y_offset = (multiline_line_height + parseInt(text_ship_margin_top.value)) / 2;
-                    break;
-                case "bot":
-                    text_y = (canvas.height + label_h) / 2 - text_height;
-                    ship_to_y_offset = 0;
-                    break;
-            }
-            // NOTE: Fonts start at y and paint upwards (negative y)
-            text_y += font_size;
-
-            ctx.textAlign = text_justify_horizontal;
-            let text_x;
-            switch (text_justify_horizontal)
-            {
-                case "left":
-                    text_x = (canvas.width - label_w) / 2;
-                    break;
-                case "center":
-                    text_x = canvas.width / 2;
-                    break;
-                case "right":
-                    text_x = (canvas.width + label_w) / 2;
-                    break;
-            }
-
-            let text_label_type_value = document.querySelector('input[name="text-label-type"]:checked').value;
-            if (text_label_type_value == "ship-to")
-            {
-                ctx.font = `bold ${font_size}px ${font_face}`;
-                ctx.fillText(
-                    "Ship to:",
-                    text_x + parseInt(text_ship_margin_left.value),
-                    (canvas.height - label_h) / 2 + font_size + parseInt(text_ship_margin_top.value));
-                ctx.font = `${font_size}px ${font_face}`;
-
-                // NOTE: Bold text has the same height as non-bold text
-                text_y += ship_to_y_offset;
-            }
-
-            // Text
-            text_x += parseInt(text_margin_left.value);
-            text_y += parseInt(text_margin_top.value);
-            let start_y = text_y;
-            let max_width = 0;
-            lines.forEach(line => {
-                let metrics = ctx.measureText(line);
-
-                if (metrics.width > max_width)
-                {
-                    max_width = metrics.width;
-                }
-
-                ctx.fillText(line, text_x, text_y);
-                text_y += multiline_line_height;
-            });
-
-            if (debug)
-            {
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = "rgba(255, 0, 0, 1)";
-                ctx.beginPath();
-
-                // NOTE: debug_x represents the change in behavior for changing the horizontal justification
-                let debug_x;
-                switch (text_justify_horizontal)
-                {
-                    case "left":
-                        debug_x = text_x;
-                        break;
-                    case "center":
-                        debug_x = text_x - max_width / 2;
-                        break;
-                    case "right":
-                        debug_x = text_x - max_width;
-                        break;
-                }
-
-                ctx.rect(
-                    debug_x,
-                    // NOTE: Box needs to start at top of text
-                    start_y - font_size,
-                    max_width,
-                    text_height);
-                ctx.stroke();
-            }
+            update_text();
         }
         else
         {
@@ -648,12 +652,17 @@ document.addEventListener('DOMContentLoaded', function () {
     fitButton.addEventListener('click', fit_to_label);
 
     printButton.addEventListener('click', function() {
+        ctx.fillStyle = "rgba(255, 255, 255, 1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(0, 0, 0, 1)";
+
         if (img != null)
         {
-            ctx.fillStyle = "rgba(255, 255, 255, 1)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "rgba(0, 0, 0, 1)";
             update_img(draw_controls=false);
+        }
+        else
+        {
+            update_text();
         }
 
         const label_canvas = document.createElement("canvas");
